@@ -1,0 +1,9 @@
+body {
+  min-height: 75rem;
+  padding-top: 3.5rem;
+  background-color: #fafafa;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  background-image:url('../assets/background.jpg');
+}
