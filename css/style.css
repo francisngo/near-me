@@ -28,6 +28,10 @@ body {
   padding: 20px;
 }
 
+.card-header {
+  background-color: rgba(0,0,0,0.1);
+}
+
 .card-img {
   background-color: #BBDEFB;
 }
