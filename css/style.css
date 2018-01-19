@@ -19,3 +19,15 @@ body {
   opacity: .98;
   color: #000;
 }
+
+.title-header {
+  color: #fff !important;
+  font-weight: bold;
+  font-size: 24px;
+  text-shadow: 1px 1px black;
+  padding: 20px;
+}
+
+.card-img {
+  background-color: #BBDEFB;
+}
