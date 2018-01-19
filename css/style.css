@@ -7,3 +7,15 @@ body {
   background-attachment: fixed;
   background-image:url('../assets/background.jpg');
 }
+
+.nm-main-content {
+  margin-top: 2%;
+  z-index: 10 !important;
+  position: static;
+  color: #000;
+}
+
+.jumbotron {
+  opacity: .98;
+  color: #000;
+}
