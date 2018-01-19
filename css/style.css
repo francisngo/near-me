@@ -35,3 +35,8 @@ body {
 .card-img {
   background-color: #BBDEFB;
 }
+
+#nm-localfood-map {
+    height: 500px;
+    width: 100%;
+}

@@ -36,6 +36,61 @@ function showWeatherInfo() {
   $(NM_HTML.contentAreaContainer).append(renderWeatherDataHTML());
 }
 
+function showLocalFood() {
+  $(NM_HTML.contentAreaContainer).append(`
+    <div class="container title-header">
+      <h2>Local Restaurants</h2>
+    </div>
+  `);
+  $(NM_HTML.contentAreaContainer).append(renderLocalFoodHTML());
+
+  let mapInfoWindows = [];
+
+  let mapCenter = {
+    lat : nmUserLocation.latitude,
+    lng : nmUserLocation.longitude
+  };
+
+  let foodMap = new google.maps.Map(document.getElementById('nm-localfood-map'), {
+    center : mapCenter,
+    zoom   : 12
+  });
+
+  let foodRequest = {
+    location : mapCenter,
+    radius   : '5000',
+    type     : ['restaurant']
+  };
+
+  let service = new google.maps.places.PlacesService(foodMap);
+  service.textSearch(foodRequest, function(results, status) {
+    if (status == google.maps.places.PlacesServiceStatus.OK) {
+      for (let i = 0; i < results.length; i++) {
+        let place = results[i];
+        let infoWindowContent = `<h6>${place.name}</h6>
+                                 <p>${place.formatted_address.replace(',', '<br>')}</p>`;
+
+        let infoWindow = new google.maps.InfoWindow({
+          content: infoWindowContent
+        });
+
+        let marker = new google.maps.Marker({
+          map       : foodMap,
+          position  : place.geometry.location
+        });
+
+        mapInfoWindows.push(infoWindow);
+        marker.addListener('click', function() {
+          infoWindow.open(foodMap, marker);
+          mapInfoWindows.forEach(function(item) {
+            if (item != infoWindow) item.close();
+          });
+        });
+      }
+    }
+  });
+}
+
 // ================================================================
 // Geo Location
 // ================================================================
@@ -84,7 +139,7 @@ function getUserLocality(position) {
         console.info('INFO - User location could not be determined.');
       }
     })
-    .catch(handleError)
+    .catch(handleError);
 }
 
 function handleError() {
@@ -119,10 +174,11 @@ function getWeatherLocationKey(res) {
           nmUserLocation.weather.pop();
           console.log(`User location updated: Temp ${nmUserLocation.weather[0].Temperature.Maximum.Value}°F`);
           showWeatherInfo();
+          showLocalFood();
         })
         .catch(function(err) {
-          console.error('ERROR - getting weather forecast.');
-          alert('There was an error getting weather data. Sorry!');
+          console.error('ERROR - getting weather forecast and/or local restaurants.');
+          alert('There was an error getting weather and/or local restaurant data. Sorry!');
         });
   } else {
       console.error("ERROR - getting weather location key.");
@@ -166,5 +222,73 @@ function renderWeatherDataHTML() {
       )
     }
   );
+  return element;
+}
+
+// ================================================================
+// Foursquare API
+// ================================================================
+function getLocalFood() {
+  let mapInfoWindows = [];
+
+  let mapCenter = {
+    lat : nmUserLocation.latitude,
+    lng : nmUserLocation.longitude
+  };
+
+  let foodMap = new google.maps.Map(document.getElementById('nm-localfood-map'), {
+    center : mapCenter,
+    zoom   : 12
+  });
+
+  let foodRequest = {
+    location : mapCenter,
+    radius   : '5000',
+    type     : ['restaurant']
+  };
+
+  let service = new google.maps.places.PlacesService(foodMap);
+  service.textSearch(foodRequest, function(results, status) {
+    if (status == google.maps.places.PlacesServiceStatus.OK) {
+      for (let i = 0; i < results.length; i++) {
+        let place = results[i];
+        let infoWindowContent = `<h6>${place.name}</h6>
+                                 <p>${place.formatted_address.replace(',', '<br>')}</p>`;
+
+        let infoWindow = new google.maps.InfoWindow({
+          content: infoWindowContent
+        });
+
+        let marker = new google.maps.Marker({
+          map       : foodMap,
+          position  : place.geometry.location
+        });
+
+        mapInfoWindows.push(infoWindow);
+        marker.addListener('click', function() {
+          infoWindow.open(foodMap, marker);
+          mapInfoWindows.forEach(function(item) {
+            if (item != infoWindow) item.close();
+          });
+        });
+      }
+    }
+  });
+}
+
+function renderLocalFoodHTML() {
+  let element = $('<div class="row"></div>');
+  element.append(
+    `<div class="col-sm-12">
+      <div class="card">
+        <div class="card-body">
+          <div id="nm-localfood-map"></div>
+        </div>
+        <div class="card-header">
+          Restaurants in ${nmUserLocation.city}
+        </div>
+      </div>
+    </div>`
+  )
   return element;
 }
