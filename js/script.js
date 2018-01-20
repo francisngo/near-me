@@ -24,6 +24,11 @@ function onReady() {
 // ================================================================
 function showDashboard() {
   $(NM_HTML.banner).fadeOut();
+  $(NM_HTML.contentAreaContainer).append(
+    `<div class="container text-center">
+      <h1 class="city-title">Welcome to ${nmUserLocation.city}</h1>
+    </div>`
+  );
   getWeatherData();
 }
 
