@@ -17,8 +17,14 @@ const FOURSQUARE_API = {
   client_secret : 'N0WSY1LWQL4MHY05C202VXXNCH54RPGELZCCTPMJAIMUNMTY'
 }
 
+const UNSPLASH_API = {
+    url       : 'https://api.unsplash.com/photos/random',
+    client_id : '7049fcfaf4791887b22c47c64d2faae97b51a4a3d4b3dea31fb0da0eed0e930a'
+};
+
 exports = {
   GOOGLE_API      : GOOGLE_API,
   ACCUWEATHER_API : ACCUWEATHER_API,
-  FOURSQUARE_API  : FOURSQUARE_API
+  FOURSQUARE_API  : FOURSQUARE_API,
+  UNSPLASH_API    : UNSPLASH_API
 }

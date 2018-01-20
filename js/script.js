@@ -39,60 +39,24 @@ function showWeatherInfo() {
 function showLocalFood() {
   $(NM_HTML.contentAreaContainer).append(`
     <div class="container title-header">
-      <h2>Local Restaurants</h2>
+      <h2>Local Food</h2>
     </div>
   `);
   $(NM_HTML.contentAreaContainer).append(renderLocalFoodHTML());
+  getLocalFood();
+}
 
-  let mapInfoWindows = [];
-
-  let mapCenter = {
-    lat : nmUserLocation.latitude,
-    lng : nmUserLocation.longitude
-  };
-
-  let foodMap = new google.maps.Map(document.getElementById('nm-localfood-map'), {
-    center : mapCenter,
-    zoom   : 12
-  });
-
-  let foodRequest = {
-    location : mapCenter,
-    radius   : '5000',
-    type     : ['restaurant']
-  };
-
-  let service = new google.maps.places.PlacesService(foodMap);
-  service.textSearch(foodRequest, function(results, status) {
-    if (status == google.maps.places.PlacesServiceStatus.OK) {
-      for (let i = 0; i < results.length; i++) {
-        let place = results[i];
-        let infoWindowContent = `<h6>${place.name}</h6>
-                                 <p>${place.formatted_address.replace(',', '<br>')}</p>`;
-
-        let infoWindow = new google.maps.InfoWindow({
-          content: infoWindowContent
-        });
-
-        let marker = new google.maps.Marker({
-          map       : foodMap,
-          position  : place.geometry.location
-        });
-
-        mapInfoWindows.push(infoWindow);
-        marker.addListener('click', function() {
-          infoWindow.open(foodMap, marker);
-          mapInfoWindows.forEach(function(item) {
-            if (item != infoWindow) item.close();
-          });
-        });
-      }
-    }
-  });
+function showLocalTodos() {
+  $(NM_HTML.contentAreaContainer).append(`
+    <div class="container title-header">
+      <h2>Things To Do</h2>
+    </div>
+  `);
+  $(NM_HTML.contentAreaContainer).append(renderLocalTodosHTML());
 }
 
 // ================================================================
-// Geo Location
+// Geolocation
 // ================================================================
 function getUserLocation() {
   let geolocationOps = {
@@ -175,6 +139,7 @@ function getWeatherLocationKey(res) {
           console.log(`User location updated: Temp ${nmUserLocation.weather[0].Temperature.Maximum.Value}°F`);
           showWeatherInfo();
           showLocalFood();
+          showLocalTodos();
         })
         .catch(function(err) {
           console.error('ERROR - getting weather forecast and/or local restaurants.');
@@ -207,7 +172,7 @@ function renderWeatherDataHTML() {
     function(item) {
       item.Day.Icon = item.Day.Icon <= 9 ? '0' + item.Day.Icon : item.Day.Icon;
       element.append(
-        `<div class="col-sm-12 col-md-3 col-lg-3">
+        `<div class="col-sm-12 col-md-3 col-lg-3 card-margin-btm">
           <div class="card text-center">
             <div class="card-header">
               ${formatDate(item.EpochDate)}
@@ -226,7 +191,7 @@ function renderWeatherDataHTML() {
 }
 
 // ================================================================
-// Foursquare API
+// Local Bites
 // ================================================================
 function getLocalFood() {
   let mapInfoWindows = [];
@@ -285,10 +250,82 @@ function renderLocalFoodHTML() {
           <div id="nm-localfood-map"></div>
         </div>
         <div class="card-header">
-          Restaurants in ${nmUserLocation.city}
+          Food/Restaurants in ${nmUserLocation.city}
         </div>
       </div>
     </div>`
   )
   return element;
+}
+
+// ================================================================
+// Foursquare API
+// ================================================================
+function renderLocalTodosHTML() {
+  let params = {
+    client_id     : FOURSQUARE_API.client_id,
+    client_secret : FOURSQUARE_API.client_secret,
+    ll            : nmUserLocation.latitude + ',' + nmUserLocation.longitude,
+    categoryId    : '4d4b7104d754a06370d81259',
+    limit         : 8,
+    v             : 20170701
+  };
+
+  let element = $('<div class="row" id="nm-things-todo"</div>');
+  $.getJSON(FOURSQUARE_API.url, params)
+    .then(function(res) {
+      let images = [];
+      if (res.meta.code == 200) {
+        let todo = res.response.venues;
+        todo.map(function(item) {
+          images.push( { name : item.categories[0] ? item.categories[0].shortName.split(' ')[0] : item.name.split(' ')[0], id : 'nm-fs-img-' + images.length } );
+          element.append(
+            `<div class="col-sm-12 col-md-6 col-lg-3 card-margin-btm">
+              <div class="card">
+                <div class="card-image">
+                  <img id="${images[images.length-1].id}" class="card-img" />
+                  <div class="card-img-overlay">
+                    <span class="card-title">${item.name}</span>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <p class="card-text">${item.location.formattedAddress[0]}</br>
+                  ${ item.location.formattedAddress[1] ? item.location.formattedAddress[1] : ''}</br></p>
+                </div>
+                <div class="card-footer">
+                  <a target="_blank" href="https://www.google.com/maps/search/?api=1&query=${item.location.address}">Get Directions</a>
+                </div>
+              </div>
+            </div>`
+          );
+        });
+      }
+      getTodoImages(images);
+    })
+    .catch(function(err) {
+      console.error('ERROR - rendering "things to do" html');
+      handleError(err.message);
+    });
+    return element;
+}
+
+function getTodoImages(images) {
+  images.map(function(item) {
+    let params = {
+      url       : UNSPLASH_API.url,
+      client_id : UNSPLASH_API.client_id,
+      query     : item.name
+    }
+
+    $.getJSON(UNSPLASH_API.url, params)
+      .then(function(res) {
+        if (res.urls) {
+          $('#'+item.id).attr('src', res.urls.regular);
+        }
+      })
+      .catch(function(err) {
+        console.error('ERROR - getting unsplash photos');
+        handleError(err.message)
+      });
+  });
 }
