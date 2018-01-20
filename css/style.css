@@ -1,11 +1,16 @@
+html {
+  position: relative;
+  min-height: 100%;
+}
+
 body {
-  min-height: 75rem;
   padding-top: 3.5rem;
   background-color: #fafafa;
   background-repeat: no-repeat;
   background-size: cover;
   background-attachment: fixed;
   background-image:url('../assets/background.jpg');
+  margin-bottom: 100px;
 }
 
 .nm-main-content {
@@ -51,13 +56,22 @@ body {
   margin-bottom: 15px;
 }
 
-#nm-things-todo .card-title {
+#nm-things-places .card-title {
   color: #fff !important;
   font-weight: bold;
   font-size: 24px;
   text-shadow: 1px 1px black;
 }
 
-#nm-things-todo .card-body {
+#nm-things-places .card-body {
   height: 150px;
+}
+
+.footer {
+  display: none;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  line-height: 60px; /* Vertically center the text there */
+  background-color: #f5f5f5;
 }

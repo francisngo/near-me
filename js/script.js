@@ -46,13 +46,14 @@ function showLocalFood() {
   getLocalFood();
 }
 
-function showLocalTodos() {
+function showLocalPlaces() {
   $(NM_HTML.contentAreaContainer).append(`
     <div class="container title-header">
-      <h2>Things To Do</h2>
+      <h2>Recommended Places</h2>
     </div>
   `);
-  $(NM_HTML.contentAreaContainer).append(renderLocalTodosHTML());
+  $(NM_HTML.contentAreaContainer).append(renderLocalPlacesHTML());
+  $('footer').fadeIn('slow');
 }
 
 // ================================================================
@@ -139,7 +140,7 @@ function getWeatherLocationKey(res) {
           console.log(`User location updated: Temp ${nmUserLocation.weather[0].Temperature.Maximum.Value}°F`);
           showWeatherInfo();
           showLocalFood();
-          showLocalTodos();
+          showLocalPlaces();
         })
         .catch(function(err) {
           console.error('ERROR - getting weather forecast and/or local restaurants.');
@@ -261,7 +262,7 @@ function renderLocalFoodHTML() {
 // ================================================================
 // Foursquare API
 // ================================================================
-function renderLocalTodosHTML() {
+function renderLocalPlacesHTML() {
   let params = {
     client_id     : FOURSQUARE_API.client_id,
     client_secret : FOURSQUARE_API.client_secret,
@@ -271,7 +272,7 @@ function renderLocalTodosHTML() {
     v             : 20170701
   };
 
-  let element = $('<div class="row" id="nm-things-todo"</div>');
+  let element = $('<div class="row" id="nm-things-places"</div>');
   $.getJSON(FOURSQUARE_API.url, params)
     .then(function(res) {
       let images = [];
@@ -300,16 +301,16 @@ function renderLocalTodosHTML() {
           );
         });
       }
-      getTodoImages(images);
+      getPlaceImages(images);
     })
     .catch(function(err) {
-      console.error('ERROR - rendering "things to do" html');
+      console.error('ERROR - rendering html for recommended places');
       handleError(err.message);
     });
     return element;
 }
 
-function getTodoImages(images) {
+function getPlaceImages(images) {
   images.map(function(item) {
     let params = {
       url       : UNSPLASH_API.url,
